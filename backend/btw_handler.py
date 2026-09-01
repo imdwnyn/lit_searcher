@@ -10,7 +10,7 @@ from backend.models import BtwRouteDecision
 
 load_dotenv()
 
-llm = ChatOpenAI(model="gpt-5-mini")
+llm = ChatOpenAI(model="gpt-4o-mini")
 
 
 def handle_btw(query: str) -> Generator[str, None, None]:

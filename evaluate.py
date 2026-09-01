@@ -36,21 +36,28 @@ METRIC_THRESHOLD    = 0.7
 
 
 def generate_goldens() -> list[dict]:
-    synthesizer = Synthesizer()
-    goldens = synthesizer.generate_goldens_from_docs(
-        document_paths=[PDF_PATH],
+    print("Generating goldens using gpt-4o-mini...")
+    docs = load_document(PDF_PATH)
+    contexts = [
+        [d.page_content]
+        for d in docs
+        if len(d.page_content.strip()) > 150
+    ][:MAX_CONTEXTS]
+
+    synthesizer = Synthesizer(model="gpt-4o-mini")
+    goldens = synthesizer.generate_goldens_from_contexts(
+        contexts=contexts,
         include_expected_output=True,
         max_goldens_per_context=GOLDENS_PER_CONTEXT,
-        context_construction_config=ContextConstructionConfig(
-            max_contexts_per_document=MAX_CONTEXTS,
-        ),
     )
+
     pairs = [
         {"input": g.input, "expected_output": g.expected_output}
         for g in goldens
         if g.input and g.expected_output
     ]
     GOLDENS_FILE.write_text(json.dumps(pairs, indent=2, ensure_ascii=False), encoding="utf-8")
+    print(f"Saved {len(pairs)} goldens to {GOLDENS_FILE}")
     return pairs
 
 
@@ -83,11 +90,11 @@ def main() -> None:
     graph = build_graph(db_path="eval_checkpoints.db")
 
     metrics = [
-        ContextualPrecisionMetric(threshold=METRIC_THRESHOLD, model="gpt-5.4-mini"),
-        ContextualRecallMetric(threshold=METRIC_THRESHOLD, model="gpt-5.4-mini"),
-        ContextualRelevancyMetric(threshold=METRIC_THRESHOLD, model="gpt-5.4-mini"),
-        AnswerRelevancyMetric(threshold=METRIC_THRESHOLD, model="gpt-5.4-mini"),
-        FaithfulnessMetric(threshold=METRIC_THRESHOLD, model="gpt-5.4-mini"),
+        ContextualPrecisionMetric(threshold=METRIC_THRESHOLD, model="gpt-4o-mini"),
+        ContextualRecallMetric(threshold=METRIC_THRESHOLD, model="gpt-4o-mini"),
+        ContextualRelevancyMetric(threshold=METRIC_THRESHOLD, model="gpt-4o-mini"),
+        AnswerRelevancyMetric(threshold=METRIC_THRESHOLD, model="gpt-4o-mini"),
+        FaithfulnessMetric(threshold=METRIC_THRESHOLD, model="gpt-4o-mini"),
     ]
 
     test_cases = []

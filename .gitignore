@@ -3,4 +3,7 @@ __pycache__/
 *.pyc
 *.db
 .env
-
+.deepeval/
+.deepeval*
+text-embedding-3-small*
+*.cache

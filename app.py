@@ -22,7 +22,7 @@ def get_graph():
 
 
 SESSIONS_FILE = Path("sessions.json")
-_rename_llm = ChatOpenAI(model="gpt-5-mini")
+_rename_llm = ChatOpenAI(model="gpt-4o-mini")
 
 
 def load_sessions() -> dict:
